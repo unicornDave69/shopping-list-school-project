@@ -9,7 +9,7 @@ function UserProvider({ children }) {
     u1: { id: "u1", name: "David" },
     u2: { id: "u2", name: "Filip" },
     u3: { id: "u3", name: "Klausik" },
-    u4: { id: "u4", name: "Sisi" },
+    u4: { id: "u4", name: "Vlada" },
   };
 
   const value = {

@@ -1,6 +1,6 @@
 import React, { useState, useContext } from "react";
 import { OverviewContext } from "../Providers/OverviewProvider";
-import { UserContext } from "../Providers/UserProvider"; // Import UserContext
+import { UserContext } from "../Providers/UserProvider";
 import "bootstrap/dist/css/bootstrap.min.css";
 import Button from "react-bootstrap/Button";
 import Modal from "react-bootstrap/Modal";
@@ -16,26 +16,30 @@ import { IoIosArchive } from "react-icons/io";
 function Toolbar() {
   const {
     handleCreate,
-    handleArchive,
     handleDelete,
+    handleArchive,
     filteredToDoListList,
     showArchived,
     setShowArchived,
   } = useContext(OverviewContext);
   const { loggedInUser, userMap } = useContext(UserContext);
-  const currentUser = userMap[loggedInUser];
 
+  // Define local state for modal and form fields
   const [showModal, setShowModal] = useState(false);
   const [listName, setListName] = useState("");
   const [items, setItems] = useState([]);
   const [itemName, setItemName] = useState("");
   const [itemQuantity, setItemQuantity] = useState("");
+  const [selectedMembers, setSelectedMembers] = useState([]);
+
+  const currentUser = userMap[loggedInUser];
 
   const handleShowModal = () => setShowModal(true);
   const handleCloseModal = () => {
     setShowModal(false);
     setListName("");
     setItems([]);
+    setSelectedMembers([]);
   };
 
   const handleAddItem = () => {
@@ -47,18 +51,24 @@ function Toolbar() {
   };
 
   const handleSaveList = () => {
-    if (listName && items.length > 0) {
-      handleCreate({ name: listName, items });
-      handleCloseModal();
-    }
+    handleCreate({
+      id: `sl${Math.random()}`,
+      name: listName,
+      state: "active",
+      owner: loggedInUser,
+      memberList: selectedMembers,
+      items,
+    });
+    handleCloseModal();
   };
 
   return (
     <Container>
       <h4>Welcome, {currentUser.name}!</h4>
-      <CiSquarePlus onClick={handleShowModal} />
-      <IoIosArchive onClick={() => setShowArchived(!showArchived)} />
-
+      <div className="icons">
+        <CiSquarePlus onClick={handleShowModal} />
+        <IoIosArchive onClick={() => filteredToDoListList()} />
+      </div>
       <Modal show={showModal} onHide={handleCloseModal}>
         <Modal.Header closeButton>
           <Modal.Title>Create Shopping List</Modal.Title>
@@ -116,6 +126,31 @@ function Toolbar() {
                 ))}
               </tbody>
             </Table>
+
+            <Form.Group controlId="formMembers">
+              <Form.Label>Members</Form.Label>
+              <Form.Control
+                as="select"
+                multiple
+                value={selectedMembers}
+                onChange={(e) => {
+                  const value = Array.from(
+                    e.target.selectedOptions,
+                    (option) => option.value
+                  );
+                  setSelectedMembers(value);
+                }}
+              >
+                {Object.entries(userMap).map(
+                  ([userId, user]) =>
+                    userId !== loggedInUser && (
+                      <option key={userId} value={userId}>
+                        {user.name}
+                      </option>
+                    )
+                )}
+              </Form.Control>
+            </Form.Group>
           </Form>
         </Modal.Body>
         <Modal.Footer>
@@ -129,60 +164,53 @@ function Toolbar() {
       </Modal>
 
       <Row className="mt-4">
-        {filteredToDoListList.map((list, index) => (
-          <Col key={index} sm={6} md={4} lg={3}>
-            <Card className="mb-4">
-              <Card.Body>
-                <Card.Title>{list.name}</Card.Title>
-                <Table bordered size="sm">
-                  <thead>
-                    <tr>
-                      <th>Item</th>
-                      <th>Quantity</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {list.items?.map((item, idx) => (
-                      <tr key={idx}>
-                        <td>{item.name}</td>
-                        <td>{item.quantity}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </Table>
-                {list.owner === loggedInUser && (
-                  <>
-                    <Button variant="danger" onClick={() => handleDelete(list)}>
-                      Delete
-                    </Button>
-                    <Button
-                      variant="warning"
-                      onClick={() => handleArchive(list)}
-                    >
-                      Archive
-                    </Button>
-                  </>
-                )}
-              </Card.Body>
-            </Card>
-          </Col>
-        ))}
-      </Row>
+        {filteredToDoListList.map(
+          (list, index) =>
+            (list.memberList.includes(loggedInUser) ||
+              list.owner === loggedInUser) && (
+              <Col key={index} sm={6} md={4} lg={3}>
+                <Card className="mb-4">
+                  <Card.Body>
+                    <Card.Title>{list.name}</Card.Title>
+                    <Table bordered size="sm">
+                      <thead>
+                        <tr>
+                          <th>Item</th>
+                          <th>Quantity</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {list.items?.map((item, idx) => (
+                          <tr key={idx}>
+                            <td>{item.name}</td>
+                            <td>{item.quantity}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </Table>
+                    {list.owner === loggedInUser && (
+                      <>
+                        <Button
+                          variant="danger"
+                          onClick={() => handleDelete(list.id)}
+                        >
+                          Delete
+                        </Button>
 
-      <Modal show={showArchived} onHide={() => setShowArchived(false)}>
-        <Modal.Header closeButton>
-          <Modal.Title>Archived Lists</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          {/* You can replace this with your archived lists display logic */}
-          <p>No archived lists</p>
-        </Modal.Body>
-        <Modal.Footer>
-          <Button variant="secondary" onClick={() => setShowArchived(false)}>
-            Close
-          </Button>
-        </Modal.Footer>
-      </Modal>
+                        <Button
+                          variant="warning"
+                          onClick={() => handleArchive(list.id)}
+                        >
+                          Archive
+                        </Button>
+                      </>
+                    )}
+                  </Card.Body>
+                </Card>
+              </Col>
+            )
+        )}
+      </Row>
     </Container>
   );
 }
