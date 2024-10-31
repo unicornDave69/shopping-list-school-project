@@ -5,7 +5,6 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import Button from "react-bootstrap/Button";
 import Modal from "react-bootstrap/Modal";
 import Form from "react-bootstrap/Form";
-import Table from "react-bootstrap/Table";
 import Card from "react-bootstrap/Card";
 import Container from "react-bootstrap/Container";
 import Row from "react-bootstrap/Row";
@@ -28,8 +27,6 @@ function Toolbar() {
   const [showModal, setShowModal] = useState(false);
   const [listName, setListName] = useState("");
   const [items, setItems] = useState([]);
-  const [itemName, setItemName] = useState("");
-  const [itemQuantity, setItemQuantity] = useState("");
   const [selectedMembers, setSelectedMembers] = useState([]);
 
   const currentUser = userMap[loggedInUser];
@@ -40,14 +37,6 @@ function Toolbar() {
     setListName("");
     setItems([]);
     setSelectedMembers([]);
-  };
-
-  const handleAddItem = () => {
-    if (itemName && itemQuantity) {
-      setItems([...items, { name: itemName, quantity: itemQuantity }]);
-      setItemName("");
-      setItemQuantity("");
-    }
   };
 
   const handleSaveList = () => {
@@ -86,46 +75,6 @@ function Toolbar() {
             </Form.Group>
 
             <hr />
-
-            <Form.Group controlId="formItemName">
-              <Form.Label>Item Name</Form.Label>
-              <Form.Control
-                type="text"
-                placeholder="Enter item name"
-                value={itemName}
-                onChange={(e) => setItemName(e.target.value)}
-              />
-            </Form.Group>
-            <Form.Group controlId="formItemQuantity">
-              <Form.Label>Quantity</Form.Label>
-              <Form.Control
-                type="text"
-                placeholder="Enter quantity (e.g., 2)"
-                value={itemQuantity}
-                onChange={(e) => setItemQuantity(e.target.value)}
-              />
-            </Form.Group>
-
-            <Button variant="primary" onClick={handleAddItem} className="mt-2">
-              Add Item
-            </Button>
-
-            <Table striped bordered hover className="mt-3">
-              <thead>
-                <tr>
-                  <th>Item Name</th>
-                  <th>Quantity</th>
-                </tr>
-              </thead>
-              <tbody>
-                {items.map((item, index) => (
-                  <tr key={index}>
-                    <td>{item.name}</td>
-                    <td>{item.quantity}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </Table>
 
             <Form.Group controlId="formMembers">
               <Form.Label>Members</Form.Label>
@@ -172,22 +121,6 @@ function Toolbar() {
                 <Card className="mb-4">
                   <Card.Body>
                     <Card.Title>{list.name}</Card.Title>
-                    <Table bordered size="sm">
-                      <thead>
-                        <tr>
-                          <th>Item</th>
-                          <th>Quantity</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {list.items?.map((item, idx) => (
-                          <tr key={idx}>
-                            <td>{item.name}</td>
-                            <td>{item.quantity}</td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </Table>
                     {list.owner === loggedInUser && (
                       <>
                         <Button
