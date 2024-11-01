@@ -12,6 +12,8 @@ import Col from "react-bootstrap/Col";
 import { CiCirclePlus } from "react-icons/ci";
 import { IoIosArchive } from "react-icons/io";
 import { Dropdown, Table } from "react-bootstrap";
+import { FaTrash } from "react-icons/fa";
+import { CgDetailsMore } from "react-icons/cg";
 
 function Toolbar() {
   const {
@@ -60,6 +62,7 @@ function Toolbar() {
     });
   };
 
+  const colors = [];
   const handleSaveList = () => {
     const newList = {
       id: `sl${Math.random()}`,
@@ -78,20 +81,36 @@ function Toolbar() {
 
   return (
     <Container>
-      <div className="welcome">
-        <h4>Welcome, {currentUser.name}!</h4>
+      <div
+        className="welcome"
+        style={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+        }}
+      >
+        <h2>Welcome, {currentUser.name}!</h2>
       </div>
 
-      <div className="icons">
+      <div
+        className="icons"
+        style={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          size: "100%",
+        }}
+      >
         <CiCirclePlus
           onClick={handleShowModal}
-          style={{ cursor: "pointer", color: "green" }}
+          style={{ cursor: "pointer", color: "green", fontSize: "4em" }}
         />
         <IoIosArchive
           onClick={() => setShowArchived((prev) => !prev)}
           style={{
             cursor: "pointer",
-            color: showArchived ? "orange" : "black",
+            color: showArchived ? "black" : "grey",
+            fontSize: "4em",
           }}
         />
       </div>
@@ -154,8 +173,7 @@ function Toolbar() {
           </Button>
         </Modal.Footer>
       </Modal>
-
-      {/* Potvrzovací modální okno pro mazání seznamu */}
+      {/* <OverviewToolbar />  <--  <ModalCreateShoppingList/>  <-- <Form/> */}
       <Modal show={showConfirmModal} onHide={handleCloseConfirmModal}>
         <Modal.Header closeButton>
           <Modal.Title>Potvrzení smazání</Modal.Title>
@@ -172,51 +190,71 @@ function Toolbar() {
           </Button>
         </Modal.Footer>
       </Modal>
-
-      <Row className="mt-4">
-        {filteredOV.map(
-          (list, index) =>
-            (list.memberList.includes(loggedInUser) ||
-              list.owner === loggedInUser) && (
-              <Col key={index} sm={6} md={4} lg={3}>
-                <Card className="mb-4">
-                  <Card.Body>
-                    <Card.Title>{list.name}</Card.Title>
-                    {list.owner === loggedInUser ? (
-                      <>
-                        <Button
-                          variant="danger"
-                          onClick={() => handleShowConfirmModal(list)}
-                        >
-                          Delete
-                        </Button>
-                        <Button
-                          variant="warning"
-                          onClick={() => handleArchive(list.id)}
-                        >
-                          Archive
-                        </Button>
-                        <Button
-                          variant="primary"
-                          onClick={() => showDetail(list)}
-                        >
-                          Detail
-                        </Button>
-                      </>
-                    ) : list.memberList.includes(loggedInUser) ? (
+      <div className="cards">
+        <Row className="mt-4">
+          {filteredOV.map(
+            (list, index) =>
+              (list.memberList.includes(loggedInUser) ||
+                list.owner === loggedInUser) && (
+                <Col key={index} sm={6} md={4} lg={3}>
+                  <Card
+                    className="bellow buttons"
+                    style={{
+                      borderRadius: "50%",
+                      width: "300px",
+                      height: "300px",
+                      textAlign: "center",
+                    }}
+                  >
+                    <Card.Body>
+                      <Card.Title style={{ fontSize: "1.5em", margin: "auto" }}>
+                        {list.name}
+                      </Card.Title>
+                    </Card.Body>
+                    <div
+                      className="d-flex justify-content-around mb-3"
+                      style={{ width: "100%" }}
+                    >
+                      <Button
+                        variant="danger"
+                        onClick={() => handleShowConfirmModal(list)}
+                        style={{
+                          borderRadius: "50%",
+                          width: "75px",
+                          height: "75px",
+                        }}
+                      >
+                        <FaTrash size={45} />
+                      </Button>
+                      <Button
+                        variant="secondary"
+                        onClick={() => handleArchive(list.id)}
+                        style={{
+                          borderRadius: "50%",
+                          width: "75px",
+                          height: "75px",
+                        }}
+                      >
+                        <IoIosArchive size={50} />
+                      </Button>
                       <Button
                         variant="primary"
                         onClick={() => showDetail(list)}
+                        style={{
+                          borderRadius: "50%",
+                          width: "75px",
+                          height: "75px",
+                        }}
                       >
-                        Detail
+                        <CgDetailsMore size={50} />
                       </Button>
-                    ) : null}
-                  </Card.Body>
-                </Card>
-              </Col>
-            )
-        )}
-      </Row>
+                    </div>
+                  </Card>
+                </Col>
+              )
+          )}
+        </Row>
+      </div>
       {showTable && selectedList && (
         <>
           <Table>

@@ -7,6 +7,7 @@ function Logo() {
       style={{
         display: "flex",
         justifyContent: "center",
+        alignItems: "center",
       }}
     >
       <img

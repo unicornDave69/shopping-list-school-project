@@ -13,7 +13,7 @@ function Header() {
         paddingTop: "10px",
       }}
     >
-      <div></div>
+      <div style={{ width: "100px" }}></div>
       <Logo />
       <UserBar />
     </div>

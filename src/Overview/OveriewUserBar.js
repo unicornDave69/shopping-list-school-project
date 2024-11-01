@@ -10,7 +10,8 @@ function UserBar() {
       style={{
         display: "flex",
         alignItems: "center",
-        paddingRight: "10px",
+        color: "grey",
+        width: "100px",
       }}
     >
       <Dropdown.Toggle
