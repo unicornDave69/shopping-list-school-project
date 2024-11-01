@@ -5,15 +5,12 @@ export const OverviewContext = createContext();
 function OverviewProvider({ children }) {
   const [shoppingLists, setShoppingLists] = useState([]);
   const [showArchived, setShowArchived] = useState(false);
-  const [selectedListId, setSelectedListId] = useState(null);
-  const [showModal, setShowModal] = useState(false);
 
-  const handleCreate = ({ id, name, owner, memberList = [], items }) => {
+  const handleCreate = ({ id, name, owner, memberList = [] }) => {
     setShoppingLists((current) => [
       ...current,
-      { id, name, owner, memberList, items, status: "active" },
+      { id, name, owner, memberList, status: "active" },
     ]);
-    setShowModal(false);
   };
 
   const handleArchive = (listId) => {
@@ -28,10 +25,6 @@ function OverviewProvider({ children }) {
 
   const handleDelete = (listId) => {
     setShoppingLists((current) => current.filter((list) => list.id !== listId));
-  };
-
-  const handleSelectList = (listId) => {
-    setSelectedListId(listId);
   };
 
   const filteredOV = useMemo(() => {
@@ -50,8 +43,6 @@ function OverviewProvider({ children }) {
         handleCreate,
         handleArchive,
         handleDelete,
-        handleSelectList,
-        selectedListId,
       }}
     >
       {children}

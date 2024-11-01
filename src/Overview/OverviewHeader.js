@@ -8,24 +8,30 @@ function Header() {
   const { userList, loggedInUser, setLoggedInUser } = useContext(UserContext);
 
   return (
-    <div>
-      <div
-        className="userIcon"
-        style={{
-          display: "flex",
-          justifyContent: "flex-end",
-          width: "100vw",
-          paddingTop: "30px",
-          paddingRight: "40px",
-        }}
-      >
-        <Dropdown>
+    <div className="header">
+      <div className="logo">
+        <img
+          src={logo}
+          alt="Logo"
+          style={{
+            height: "180px",
+            paddingTop: "20px",
+          }}
+        />
+
+        <Dropdown
+          style={{
+            display: "flex",
+            justifyContent: "flex-end",
+            width: "100vw",
+            paddingRight: "40px",
+          }}
+        >
           <Dropdown.Toggle
             as="div"
             variant="success"
             id="dropdown-basic"
             style={{
-              padding: 0,
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
@@ -45,16 +51,6 @@ function Header() {
             ))}
           </Dropdown.Menu>
         </Dropdown>
-      </div>
-
-      <div className="logo">
-        <img
-          src={logo}
-          alt="Logo"
-          style={{
-            height: "60px",
-          }}
-        />
       </div>
     </div>
   );

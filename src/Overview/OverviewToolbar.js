@@ -29,11 +29,27 @@ function Toolbar() {
   const [selectedMembers, setSelectedMembers] = useState([]);
   const [showTable, setShowTable] = useState(false);
   const [selectedList, setSelectedList] = useState(null);
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [listToDelete, setListToDelete] = useState(null);
 
   const currentUser = userMap[loggedInUser];
 
   const handleShowModal = () => setShowModal(true);
   const handleCloseModal = () => setShowModal(false);
+
+  const handleShowConfirmModal = (list) => {
+    setListToDelete(list);
+    setShowConfirmModal(true);
+  };
+
+  const handleCloseConfirmModal = () => setShowConfirmModal(false);
+
+  const confirmDelete = () => {
+    if (listToDelete) {
+      handleDelete(listToDelete.id);
+    }
+    handleCloseConfirmModal();
+  };
 
   const handleSelect = (userId) => {
     setSelectedMembers((prev) => {
@@ -51,7 +67,6 @@ function Toolbar() {
       owner: loggedInUser,
       memberList: selectedMembers,
     };
-    console.log(newList);
     handleCreate(newList);
     handleCloseModal();
   };
@@ -63,14 +78,14 @@ function Toolbar() {
 
   return (
     <Container>
-      <h4>Welcome, {currentUser.name}!</h4>
+      <div className="welcome">
+        <h4>Welcome, {currentUser.name}!</h4>
+      </div>
+
       <div className="icons">
         <CiCirclePlus
           onClick={handleShowModal}
-          style={{
-            cursor: "pointer",
-            color: "green",
-          }}
+          style={{ cursor: "pointer", color: "green" }}
         />
         <IoIosArchive
           onClick={() => setShowArchived((prev) => !prev)}
@@ -80,6 +95,7 @@ function Toolbar() {
           }}
         />
       </div>
+
       <Modal show={showModal} onHide={handleCloseModal}>
         <Modal.Header closeButton>
           <Modal.Title>Create Shopping List</Modal.Title>
@@ -95,13 +111,11 @@ function Toolbar() {
                 onChange={(e) => setListName(e.target.value)}
               />
             </Form.Group>
-
             <hr />
             <Dropdown>
               <Dropdown.Toggle variant="success" id="dropdown-members">
                 Vyber členy
               </Dropdown.Toggle>
-
               <Dropdown.Menu>
                 {Object.entries(userMap).map(
                   ([userId, user]) =>
@@ -117,7 +131,6 @@ function Toolbar() {
                 )}
               </Dropdown.Menu>
             </Dropdown>
-
             <div className="mt-3">
               {selectedMembers.length > 0 && (
                 <div>
@@ -142,6 +155,24 @@ function Toolbar() {
         </Modal.Footer>
       </Modal>
 
+      {/* Potvrzovací modální okno pro mazání seznamu */}
+      <Modal show={showConfirmModal} onHide={handleCloseConfirmModal}>
+        <Modal.Header closeButton>
+          <Modal.Title>Potvrzení smazání</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          Opravdu chcete smazat seznam "{listToDelete?.name}"?
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={handleCloseConfirmModal}>
+            Zrušit
+          </Button>
+          <Button variant="danger" onClick={confirmDelete}>
+            Smazat
+          </Button>
+        </Modal.Footer>
+      </Modal>
+
       <Row className="mt-4">
         {filteredOV.map(
           (list, index) =>
@@ -155,7 +186,7 @@ function Toolbar() {
                       <>
                         <Button
                           variant="danger"
-                          onClick={() => handleDelete(list.id)}
+                          onClick={() => handleShowConfirmModal(list)}
                         >
                           Delete
                         </Button>
@@ -186,7 +217,6 @@ function Toolbar() {
             )
         )}
       </Row>
-
       {showTable && selectedList && (
         <>
           <Table>
@@ -211,7 +241,6 @@ function Toolbar() {
               </tr>
             </tbody>
           </Table>
-
           <Button variant="secondary" onClick={() => setShowTable(false)}>
             Hide detail
           </Button>
