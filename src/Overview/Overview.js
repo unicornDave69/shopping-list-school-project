@@ -8,10 +8,8 @@ function Overview() {
   return (
     <UserProvider>
       <OverviewProvider>
-        <div style={{ textAlign: "center" }}>
-          <Header />
-          <Toolbar />
-        </div>
+        <Header />
+        <Toolbar />
       </OverviewProvider>
     </UserProvider>
   );
