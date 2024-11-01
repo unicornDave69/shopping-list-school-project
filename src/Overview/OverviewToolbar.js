@@ -11,52 +11,74 @@ import Row from "react-bootstrap/Row";
 import Col from "react-bootstrap/Col";
 import { CiSquarePlus } from "react-icons/ci";
 import { IoIosArchive } from "react-icons/io";
+import { Dropdown, Table } from "react-bootstrap";
 
 function Toolbar() {
   const {
     handleCreate,
     handleDelete,
     handleArchive,
-    filteredToDoListList,
+    filteredOV,
     showArchived,
     setShowArchived,
   } = useContext(OverviewContext);
   const { loggedInUser, userMap } = useContext(UserContext);
 
-  // Define local state for modal and form fields
   const [showModal, setShowModal] = useState(false);
   const [listName, setListName] = useState("");
-  const [items, setItems] = useState([]);
   const [selectedMembers, setSelectedMembers] = useState([]);
+  const [showTable, setShowTable] = useState(false);
+  const [selectedList, setSelectedList] = useState(null);
 
   const currentUser = userMap[loggedInUser];
 
   const handleShowModal = () => setShowModal(true);
-  const handleCloseModal = () => {
-    setShowModal(false);
-    setListName("");
-    setItems([]);
-    setSelectedMembers([]);
+  const handleCloseModal = () => setShowModal(false);
+
+  const handleSelect = (userId) => {
+    setSelectedMembers((prev) => {
+      if (prev.includes(userId)) {
+        return prev.filter((id) => id !== userId);
+      }
+      return [...prev, userId];
+    });
   };
 
   const handleSaveList = () => {
-    handleCreate({
+    const newList = {
       id: `sl${Math.random()}`,
       name: listName,
-      state: "active",
       owner: loggedInUser,
       memberList: selectedMembers,
-      items,
-    });
+    };
+    console.log(newList);
+    handleCreate(newList);
     handleCloseModal();
+  };
+
+  const showDetail = (list) => {
+    setSelectedList(list);
+    setShowTable(true);
   };
 
   return (
     <Container>
       <h4>Welcome, {currentUser.name}!</h4>
       <div className="icons">
-        <CiSquarePlus onClick={handleShowModal} />
-        <IoIosArchive onClick={() => filteredToDoListList()} />
+        <CiSquarePlus
+          onClick={handleShowModal}
+          style={{
+            cursor: "pointer",
+            color: "green",
+          }}
+        />
+        <IoIosArchive
+          onClick={() => setShowArchived((prev) => !prev)}
+          style={{
+            cursor: "pointer",
+            color: showArchived ? "orange" : "black",
+          }}
+        />
       </div>
       <Modal show={showModal} onHide={handleCloseModal}>
         <Modal.Header closeButton>
@@ -75,31 +97,47 @@ function Toolbar() {
             </Form.Group>
 
             <hr />
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "flex-end",
+                alignItems: "flex-start",
+                height: "100px",
+              }}
+            >
+              <Dropdown>
+                <Dropdown.Toggle variant="success" id="dropdown-members">
+                  Vyber členy
+                </Dropdown.Toggle>
 
-            <Form.Group controlId="formMembers">
-              <Form.Label>Members</Form.Label>
-              <Form.Control
-                as="select"
-                multiple
-                value={selectedMembers}
-                onChange={(e) => {
-                  const value = Array.from(
-                    e.target.selectedOptions,
-                    (option) => option.value
-                  );
-                  setSelectedMembers(value);
-                }}
-              >
-                {Object.entries(userMap).map(
-                  ([userId, user]) =>
-                    userId !== loggedInUser && (
-                      <option key={userId} value={userId}>
-                        {user.name}
-                      </option>
-                    )
-                )}
-              </Form.Control>
-            </Form.Group>
+                <Dropdown.Menu>
+                  {Object.entries(userMap).map(
+                    ([userId, user]) =>
+                      userId !== loggedInUser && (
+                        <Dropdown.Item
+                          key={userId}
+                          onClick={() => handleSelect(userId)}
+                          active={selectedMembers.includes(userId)}
+                        >
+                          {user.name}
+                        </Dropdown.Item>
+                      )
+                  )}
+                </Dropdown.Menu>
+              </Dropdown>
+            </div>
+            <div className="mt-3">
+              {selectedMembers.length > 0 && (
+                <div>
+                  <strong>Členové:</strong>
+                  <ul>
+                    {selectedMembers.map((userId) => (
+                      <li key={userId}>{userMap[userId].name}</li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+            </div>
           </Form>
         </Modal.Body>
         <Modal.Footer>
@@ -113,7 +151,7 @@ function Toolbar() {
       </Modal>
 
       <Row className="mt-4">
-        {filteredToDoListList.map(
+        {filteredOV.map(
           (list, index) =>
             (list.memberList.includes(loggedInUser) ||
               list.owner === loggedInUser) && (
@@ -121,7 +159,7 @@ function Toolbar() {
                 <Card className="mb-4">
                   <Card.Body>
                     <Card.Title>{list.name}</Card.Title>
-                    {list.owner === loggedInUser && (
+                    {list.owner === loggedInUser ? (
                       <>
                         <Button
                           variant="danger"
@@ -129,21 +167,64 @@ function Toolbar() {
                         >
                           Delete
                         </Button>
-
                         <Button
                           variant="warning"
                           onClick={() => handleArchive(list.id)}
                         >
                           Archive
                         </Button>
+                        <Button
+                          variant="primary"
+                          onClick={() => showDetail(list)}
+                        >
+                          Detail
+                        </Button>
                       </>
-                    )}
+                    ) : list.memberList.includes(loggedInUser) ? (
+                      <Button
+                        variant="primary"
+                        onClick={() => showDetail(list)}
+                      >
+                        Detail
+                      </Button>
+                    ) : null}
                   </Card.Body>
                 </Card>
               </Col>
             )
         )}
       </Row>
+
+      {showTable && selectedList && (
+        <>
+          <Table>
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Název Seznamu</th>
+                <th>Vlastník</th>
+                <th>Členové</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>{selectedList.id}</td>
+                <td>{selectedList.name}</td>
+                <td>{userMap[selectedList.owner]?.name}</td>
+                <td>
+                  {selectedList.memberList
+                    .map((userId) => userMap[userId]?.name)
+                    .join(", ")}
+                </td>
+              </tr>
+            </tbody>
+          </Table>
+
+          <Button variant="secondary" onClick={() => setShowTable(false)}>
+            Hide detail
+          </Button>
+        </>
+      )}
     </Container>
   );
 }

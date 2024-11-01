@@ -8,7 +8,7 @@ function UserProvider({ children }) {
   const userMap = {
     u1: { id: "u1", name: "David" },
     u2: { id: "u2", name: "Filip" },
-    u3: { id: "u3", name: "Klausik" },
+    u3: { id: "u3", name: "TK27" },
     u4: { id: "u4", name: "Vlada" },
   };
 

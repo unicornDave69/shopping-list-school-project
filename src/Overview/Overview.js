@@ -1,7 +1,7 @@
 import React from "react";
 import { UserProvider } from "../Providers/UserProvider";
 import Toolbar from "./OverviewToolbar";
-import OverviewProvider from "../Providers/OverviewProvider"; // Update the import
+import OverviewProvider from "../Providers/OverviewProvider";
 import Header from "./OverviewHeader";
 
 function Overview() {
